@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
@@ -83,6 +84,11 @@ func getProvider(ctx context.Context) (*gophercloud.ProviderClient, error) {
 	}
 
 	provider, err := openstack.NewClient(os.Getenv("OS_AUTH_URL"))
+
+	log.Printf("SSL verification disabled on transport")
+	tlsConfig := &tls.Config{InsecureSkipVerify: true}
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	provider.HTTPClient.Transport = transport
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot create OpenStack client: %s", err)
